@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" expiring web cache module """
+""" Web Caching Module using Decorators """
 
 import redis
 import requests
@@ -15,7 +15,7 @@ def wrap_requests(fn: Callable) -> Callable:
 
     @wraps(fn)
     def wrapper(url):
-        """ Wrapper for decorator guy """
+        """ Wrapper for decorator """
         # Increment the count for this URL in Redis
         redis_client.incr(f"count:{url}")
         # Check if the response is cached in Redis
@@ -33,6 +33,14 @@ def wrap_requests(fn: Callable) -> Callable:
 
 @wrap_requests
 def get_page(url: str) -> str:
-    """get page self-descriptive"""
+    """ Get the HTML content of a URL and cache it """
     response = requests.get(url)
     return response.text
+
+
+if __name__ == "__main__":
+    # Test the caching functionality using the slowwly API (simulates slow response)
+    url = "http://slowwly.robertomurray.co.uk/delay/1000/url/https://www.example.com"
+    for _ in range(5):
+        html_content = get_page(url)
+        print(html_content)
