@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-""" Web Caching Module using Decorators """
-
 import redis
 import requests
 from typing import Callable
@@ -35,12 +32,17 @@ def wrap_requests(fn: Callable) -> Callable:
 def get_page(url: str) -> str:
     """ Get the HTML content of a URL and cache it """
     response = requests.get(url)
+    response.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
     return response.text
 
 
 if __name__ == "__main__":
     # Test the caching functionality using the slowwly API (simulates slow response)
     url = "http://slowwly.robertomurray.co.uk/delay/1000/url/https://www.example.com"
-    for _ in range(5):
-        html_content = get_page(url)
-        print(html_content)
+    for i in range(5):
+        try:
+            html_content = get_page(url)
+            print(f"Check {i + 1} - Status Code: 200")
+            print(html_content)
+        except requests.exceptions.RequestException as e:
+            print(f"Check {i + 1} - Error: {e}")
